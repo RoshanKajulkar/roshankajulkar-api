@@ -67,6 +67,33 @@ app.get("/api/log", async (req, res) => {
   }
 });
 
+app.get("/api/log/stats", async (req, res) => {
+  try {
+    const now = new Date();
+    const yesterday = new Date(now);
+    yesterday.setDate(now.getDate() - 1);
+
+    await client.connect();
+    const db = client.db(dbName);
+    const collection = db.collection("logs");
+
+    const totalPageViews = await collection.countDocuments();
+    const last24HoursPageViews = await collection.countDocuments({
+      createdAt: { $gte: yesterday },
+    });
+
+    res.json({
+      totalPageViews,
+      last24HoursPageViews,
+    });
+  } catch (err) {
+    console.error("Error fetching stats:", err);
+    res.status(500).json({ message: "Error fetching stats" });
+  } finally {
+    await client.close();
+  }
+});
+
 app.get("/api/devto/stats", async (req, res) => {
   try {
     const response = await axios.get(
