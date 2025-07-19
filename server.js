@@ -52,15 +52,6 @@ app.get("/api/log", async (req, res) => {
     createdAt: new Date(),
   };
 
-  logs.push({
-    timestamp: new Date(),
-    ip,
-    location: {
-      city: details.city || "Unknown",
-      country: details.country_name || "Unknown",
-    },
-  });
-
   try {
     await client.connect();
     const db = client.db(dbName);
